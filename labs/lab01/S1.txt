@@ -1,0 +1,101 @@
+Current configuration : 1476 bytes
+!
+! Last configuration change at 14:49:49 UTC Tue Apr 11 2023 by admin
+!
+version 15.1
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+service compress-config
+!
+hostname S1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+enable secret 4 06YFDUHH61wAE/kLkDq9BGho1QM5EnRtoyr8cHAUg.2
+!
+username admin privilege 15 password 7 14141B180F0B
+no aaa new-model
+!
+ip cef
+!
+!
+no ip domain-lookup
+no ipv6 cef
+ipv6 multicast rpf use-bgp
+!
+!
+!
+!
+!
+!
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+!
+!
+!
+vlan internal allocation policy ascending
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Ethernet0/0
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 8
+ switchport trunk allowed vlan 3,4,8
+ switchport mode trunk
+ duplex auto
+!
+interface Ethernet0/1
+ switchport access vlan 7
+ switchport trunk native vlan 8
+ switchport mode access
+ duplex auto
+!
+interface Ethernet0/2
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 8
+ switchport trunk allowed vlan 3,4,8
+ switchport mode trunk
+ duplex auto
+!
+interface Ethernet0/3
+ switchport access vlan 3
+ switchport trunk native vlan 8
+ switchport mode access
+ duplex auto
+!
+interface Vlan3
+ ip address 192.168.3.11 255.255.255.0
+!
+ip default-gateway 192.168.3.1
+!
+no ip http server
+!
+!
+!
+!
+!
+control-plane
+!
+banner motd ^CUnauthorized access is prohibited.^C
+!
+line con 0
+ logging synchronous
+ login local
+line aux 0
+line vty 0 4
+ password 7 1511021F0725
+ login
+!
+end
