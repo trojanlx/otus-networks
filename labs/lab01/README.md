@@ -12,6 +12,7 @@
 ![](netmap.jpg)
 
 ### 2 Vlan:
+```
 S2#show vlan
 
 VLAN Name                             Status    Ports
@@ -25,6 +26,7 @@ VLAN Name                             Status    Ports
 7    ParkingLot                       active    Et0/1, Et0/2
 
 8    Native                           active
+```
 
 ### 3 Транк 
 
