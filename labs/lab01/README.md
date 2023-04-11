@@ -17,16 +17,17 @@ S2#show vlan
 VLAN Name                             Status    Ports
 ---- -------------------------------- --------- -------------------------------
 1    default                          active
+
 3    Management                       active
+
 4    Operations                       active    Et0/3
+
 7    ParkingLot                       active    Et0/1, Et0/2
+
 8    Native                           active
-1002 fddi-default                     act/unsup
-1003 token-ring-default               act/unsup
-1004 fddinet-default                  act/unsup
-1005 trnet-default                    act/unsup 
 
 ### 3 Транк 
+
 S2#show interfaces trunk
 
 Port        Mode             Encapsulation  Status        Native vlan
@@ -43,11 +44,17 @@ Et0/0       3-4,8
 ### 4 Маршруты между VLAN на маршрутизаторе
 R1#show ip route 
  192.168.3.0/24 is variably subnetted, 2 subnets, 2 masks
+ 
 C        192.168.3.0/24 is directly connected, Ethernet0/1.3
+
 L        192.168.3.1/32 is directly connected, Ethernet0/1.3
+
       192.168.4.0/24 is variably subnetted, 2 subnets, 2 masks
+      
 C        192.168.4.0/24 is directly connected, Ethernet0/1.4
+
 L        192.168.4.1/32 is directly connected, Ethernet0/1.4
+
 
 ### 5 Проверка маршрутизации
 
