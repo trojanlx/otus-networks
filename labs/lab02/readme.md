@@ -7,12 +7,12 @@
   3. Наблюдение за процессом выбора протоколом STP порта, исходя из стоимости портов;
   4. Наблюдение за процессом выбора протоколом STP порта, исходя из приоритета портов;
   
-### 1 Карта сети:
+### 1 Cоздание сети и настройка основных параметров устройства:
 
 ![](netmap2.jpg)
 
+ Проверьте связь
 
-Проверьте способность компьютеров обмениваться эхо-запросами
 ```
 S1#ping 192.168.1.2
 Type escape sequence to abort.
@@ -30,24 +30,32 @@ Sending 5, 100-byte ICMP Echos to 192.168.1.3, timeout is 2 seconds:
 !!!!!
 Success rate is 100 percent (5/5), round-trip min/avg/max = 1/1/2 ms
 ```
-### 2. Транк 
+### 2.	Определение корневого моста
+
+
+Настройте подключенные порты в качестве транковых.
 ```
-S2#show interfaces trunk
+S1#show interfaces trunk
 
 Port        Mode             Encapsulation  Status        Native vlan
-Et0/0       on               802.1q         trunking      8
+Et0/1       on               802.1q         trunking      1
+Et0/3       on               802.1q         trunking      1
 
 Port        Vlans allowed on trunk
-Et0/0       3-4,8
+Et0/1       1-4094
+Et0/3       1-4094
 
 Port        Vlans allowed and active in management domain
-Et0/0       3-4,8
+Et0/1       1
+Et0/3       1
 
 Port        Vlans in spanning tree forwarding state and not pruned
-Et0/0       3-4,8
+Et0/1       1
+Et0/3       1
+
 ```
 
-### 3.	Включите порты F0/2 и F0/4 на всех коммутаторах. Отключив остальные порты.
+Включите порты F0/2 и F0/4 на всех коммутаторах. Отключив остальные порты.
 ```
 S1#show interfaces status
 
@@ -59,7 +67,7 @@ Et0/3                        connected    trunk        auto   auto unknown
 ```
 
 
-### 4 Отобразите данные протокола spanning-tree.
+Отобразите данные протокола spanning-tree.
 ```
 S1#show spanning-tree
 
@@ -126,7 +134,7 @@ Et0/3               Root FWD 100       128.4    Shr
 
 ![](spanning-tree1.jpg)
 
-### 5	Измените стоимость порта
+Измените стоимость порта
 
 Меняем на S3
 ```
@@ -155,7 +163,7 @@ Interface           Role Sts Cost      Prio.Nbr Type
 Et0/1               Desg LRN 100       128.2    Shr
 Et0/3               Root FWD 18        128.4    Shr 
 ```
-Смотрим изменения S2
+Смотрим изменения  протокола spanning-tree на S2
 Порт E0/3 перешел в режим Altn
 ```
 S2#show spanning-tree
