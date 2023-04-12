@@ -30,25 +30,7 @@ Sending 5, 100-byte ICMP Echos to 192.168.1.3, timeout is 2 seconds:
 !!!!!
 Success rate is 100 percent (5/5), round-trip min/avg/max = 1/1/2 ms
 ```
-
-### 2 Vlan:
-```
-S2#show vlan
-
-VLAN Name                             Status    Ports
----- -------------------------------- --------- -------------------------------
-1    default                          active
-
-3    Management                       active
-
-4    Operations                       active    Et0/3
-
-7    ParkingLot                       active    Et0/1, Et0/2
-
-8    Native                           active
-```
-
-### 3 Транк 
+### 2. Транк 
 ```
 S2#show interfaces trunk
 
@@ -64,21 +46,83 @@ Et0/0       3-4,8
 Port        Vlans in spanning tree forwarding state and not pruned
 Et0/0       3-4,8
 ```
-### 4 Маршруты между VLAN на маршрутизаторе
+
+### 3.	Включите порты F0/2 и F0/4 на всех коммутаторах. Отключив остальные порты.
 ```
-R1#show ip route 
- 192.168.3.0/24 is variably subnetted, 2 subnets, 2 masks
- 
-C        192.168.3.0/24 is directly connected, Ethernet0/1.3
+S1#show interfaces status
 
-L        192.168.3.1/32 is directly connected, Ethernet0/1.3
-
-      192.168.4.0/24 is variably subnetted, 2 subnets, 2 masks
-      
-C        192.168.4.0/24 is directly connected, Ethernet0/1.4
-
-L        192.168.4.1/32 is directly connected, Ethernet0/1.4
+Port      Name               Status       Vlan       Duplex  Speed Type
+Et0/0                        disabled     trunk        auto   auto unknown
+Et0/1                        connected    trunk        auto   auto unknown
+Et0/2                        disabled     trunk        auto   auto unknown
+Et0/3                        connected    trunk        auto   auto unknown
 ```
+
+
+### 4 Отобразите данные протокола spanning-tree.
+```
+S1#show spanning-tree
+
+VLAN0001
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    32769
+             Address     aabb.cc00.1000
+             This bridge is the root
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+  Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)
+             Address     aabb.cc00.1000
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+             Aging Time  300 sec
+
+Interface           Role Sts Cost      Prio.Nbr Type
+------------------- ---- --- --------- -------- --------------------------------
+Et0/1               Desg FWD 100       128.2    Shr
+Et0/3               Desg FWD 100       128.4    Shr 
+```
+```
+S2#show spanning-tree
+
+VLAN0001
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    32769
+             Address     aabb.cc00.1000
+             Cost        100
+             Port        2 (Ethernet0/1)
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+  Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)
+             Address     aabb.cc00.2000
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+             Aging Time  300 sec
+
+Interface           Role Sts Cost      Prio.Nbr Type
+------------------- ---- --- --------- -------- --------------------------------
+Et0/1               Root FWD 100       128.2    Shr
+Et0/3               Desg FWD 100       128.4    Shr 
+```
+```
+S3#show spanning-tree
+
+VLAN0001
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    32769
+             Address     aabb.cc00.1000
+             Cost        100
+             Port        4 (Ethernet0/3)
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+  Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)
+             Address     aabb.cc00.3000
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+             Aging Time  300 sec
+
+Interface           Role Sts Cost      Prio.Nbr Type
+------------------- ---- --- --------- -------- --------------------------------
+Et0/1               Altn BLK 100       128.2    Shr
+Et0/3               Root FWD 100       128.4    Shr 
+```
+Корневым мостом в моем случае стал коммутатор S1 т.к. имеет наеменьший mac aabb.cc00.1000
 
 ### 5 Проверка маршрутизации
 
