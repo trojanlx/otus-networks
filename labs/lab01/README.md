@@ -51,6 +51,7 @@ VLAN Name                             Status    Ports
 Пример настройки транк порта для S2
 ```
 config t
+S2(config)#interface Ethernet 0/0
 S2(config-if)#switchport trunk encapsulation dot1q
 S2(config-if)#switchport mode trunk
 S2(config-if)#switchport trunk native vlan 8
