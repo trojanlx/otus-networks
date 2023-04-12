@@ -1,0 +1,95 @@
+version 15.1
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+service compress-config
+!
+hostname S2
+!
+boot-start-marker
+boot-end-marker
+!
+!
+enable secret 4 06YFDUHH61wAE/kLkDq9BGho1QM5EnRtoyr8cHAUg.2
+!
+username admin privilege 15 password 7 060506324F41
+no aaa new-model
+!
+ip cef
+!
+!
+no ip domain-lookup
+no ipv6 cef
+ipv6 multicast rpf use-bgp
+!
+!
+!
+!
+!
+!
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+!
+!
+!
+vlan internal allocation policy ascending
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Ethernet0/0
+ description Trunk Link to S1
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 8
+ switchport trunk allowed vlan 3,4,8
+ switchport mode trunk
+ duplex auto
+!
+interface Ethernet0/1
+ switchport access vlan 7
+ duplex auto
+!
+interface Ethernet0/2
+ switchport access vlan 7
+ duplex auto
+!
+interface Ethernet0/3
+ switchport access vlan 4
+ duplex auto
+!
+interface Vlan3
+ ip address 192.168.3.12 255.255.255.0
+!
+interface Vlan4
+ no ip address
+ shutdown
+!
+ip default-gateway 192.168.3.1
+!
+no ip http server
+!
+!
+!
+!
+!
+control-plane
+!
+banner motd ^CUnauthorized access is prohibited.^C
+!
+line con 0
+ logging synchronous
+ login local
+line aux 0
+line vty 0 4
+ password 7 121A0C041104
+ login
+!
+end
