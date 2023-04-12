@@ -79,10 +79,23 @@ Et0/0       3-4,8
 ```
 
 ### 4 Настроить маршруты между VLAN на маршрутизаторе
-Пример настройки 
-
-
-
+Пример настройки для vlan 3, добавляем подинтерфейсы для маршрутизации.
+```
+R1#config)#interface Ethernet 0/1.3
+R1#(config-subif)#description Default Gateway for VLAN 3
+R1#(config-subif)#encapsulation dot1Q 3
+R1#(config-subif)#ip address 192.168.3.1 255.255.255.0
+R1#(config-subif)#exit
+```
+Включаем сновной интерефейс маршрутизатора
+```
+R1#conf t
+R1#(config)#interface Ethernet 0/1
+Rl#(config-if)#Description Trunk link to S1
+R1#(config-if)#no shut
+R1#(config-if)#end
+```
+Смотрим маршруты роутера
 ```
 R1#show ip route 
  192.168.3.0/24 is variably subnetted, 2 subnets, 2 masks
