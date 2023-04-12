@@ -16,18 +16,22 @@
 
 Добавляем порт 0/3 к Vlan 4
 ```
-config t
-(config)#vlan 4
-(config-if)#interface Ethernet 0/3
-(config-if)#switchport access vlan 4
-exit
+s2#config t
+s2#(config)#vlan 4
+s2#(config-if)#name Operations
+s2#(config-if)#exit
+s2#config t
+s2#(config)#interface Ethernet 0/3
+s2#(config-if)#switchport mode access
+s2#(config-if)#switchport access vlan 4
+s2#(config-if)#exit
 ```
 Добавляем ip 192.168.3.12 на vlan 3
 ```
 conf t
 (config)# interface vlan 3
 (config-if)# ip address 192.168.3.12 255.255.255.0
-(config-if)# no shutdown
+(config-if)#no shutdown
 ```
 
 S2#show vlan
@@ -47,16 +51,15 @@ VLAN Name                             Status    Ports
 
 ### 3 Настройть магистрали 802.1Q между коммутаторами
 
-
 Пример настройки транк порта для S2
 ```
-config t
+S2#config t
 S2(config)#interface Ethernet 0/0
 S2(config-if)#switchport trunk encapsulation dot1q
 S2(config-if)#switchport mode trunk
 S2(config-if)#switchport trunk native vlan 8
 S2(config-if)#switchport trunk allowed vlan 3,4,8
-end
+S2(config-if)#end
 ```
 Настроенный порт в статусе trunking
 ```
@@ -76,6 +79,10 @@ Et0/0       3-4,8
 ```
 
 ### 4 Настроить маршруты между VLAN на маршрутизаторе
+Пример настройки 
+
+
+
 ```
 R1#show ip route 
  192.168.3.0/24 is variably subnetted, 2 subnets, 2 masks
