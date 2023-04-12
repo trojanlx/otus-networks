@@ -9,7 +9,7 @@
   
 ### 1 Карта сети:
 
-![](netmap.jpg)
+![](netmap2.jpg)
 
 ### 2 Vlan:
 ```
