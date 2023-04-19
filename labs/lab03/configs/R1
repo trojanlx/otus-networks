@@ -1,0 +1,140 @@
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname R1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+enable secret 5 $1$UM/o$5ziHyL9F5PCG03GAvLtn0/
+!
+no aaa new-model
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+ip dhcp excluded-address 192.168.1.1 192.168.1.5
+ip dhcp excluded-address 192.168.1.97 192.168.1.101
+!
+ip dhcp pool POOL-A
+ network 192.168.1.0 255.255.255.192
+ domain-name ccna-lab.com
+ default-router 192.168.1.1
+ lease 2 12 30
+!
+ip dhcp pool R2_Client_LAN
+ network 192.168.1.96 255.255.255.240
+ domain-name ccna-lab.com
+ default-router 192.168.1.97
+ lease 2 12 30
+!
+!
+!
+no ip domain lookup
+ip cef
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+username admin privilege 15 password 7 060506324F41
+!
+redundancy
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Ethernet0/0
+ description Link to R2
+ ip address 10.0.0.1 255.255.255.252
+!
+interface Ethernet0/1
+ description Trunk link to S1
+ no ip address
+!
+interface Ethernet0/1.100
+ description Default Gateway for VLAN 100
+ encapsulation dot1Q 100
+ ip address 192.168.1.1 255.255.255.192
+!
+interface Ethernet0/1.200
+ description Default Gateway for VLAN 200
+ encapsulation dot1Q 200
+ ip address 192.168.1.65 255.255.255.224
+!
+interface Ethernet0/1.1000
+ description Native Vlan 1000
+ encapsulation dot1Q 1000 native
+!
+interface Ethernet0/2
+ no ip address
+ shutdown
+!
+interface Ethernet0/3
+ no ip address
+ shutdown
+!
+ip default-gateway 10.0.0.2
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+ip route 192.168.1.96 255.255.255.240 10.0.0.2
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+banner motd ^CUnauthorized access is prohibited.^C
+!
+line con 0
+ logging synchronous
+ login local
+line aux 0
+line vty 0 4
+ password 7 045802150C2E
+ login
+ transport input none
+!
+!
+end
