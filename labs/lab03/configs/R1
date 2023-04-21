@@ -106,13 +106,12 @@ interface Ethernet0/3
  no ip address
  shutdown
 !
-ip default-gateway 10.0.0.2
 ip forward-protocol nd
 !
 !
 no ip http server
 no ip http secure-server
-ip route 192.168.1.96 255.255.255.240 10.0.0.2
+ip route 0.0.0.0 0.0.0.0 10.0.0.2
 !
 !
 !
