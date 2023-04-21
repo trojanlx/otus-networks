@@ -78,12 +78,12 @@ interface Ethernet0/3
  no ip address
  shutdown
 !
-ip default-gateway 10.0.0.1
 ip forward-protocol nd
 !
 !
 no ip http server
 no ip http secure-server
+ip route 0.0.0.0 0.0.0.0 10.0.0.1
 !
 !
 !
