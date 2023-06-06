@@ -168,7 +168,8 @@ VPC7
 pcname VPC7
 ip 10.16.3.17 255.255.255.0 10.16.3.126
 ``
-``]
+
+``
 SW2(config)#interface vlan 17
 SW2(config)#interface ethernet 0/2
 SW2(config-if)#description Link ti VPC7
@@ -269,6 +270,7 @@ Et0/1               Desg FWD 100       128.2    Shr
 Et1/0               Desg FWD 100       128.5    Shr
 Et1/1               Desg FWD 100       128.6    Shr 
 ``
+
 ``
 SW4#show interfaces trunk
 
@@ -318,8 +320,8 @@ R12(config-if)# vrrp 11 authentication cisco
 R12(config-if)# vrrp 11 timers advertise 3 
 R12(config-if)# vrrp 11 timers learn 
 R12(config-if)# vrrp 11 ip 10.16.2.126
-
 ``
+
 ``
 R13(config)# interface ethernet 0/0.11
 R13(config-if)# ip address 10.16.2.13 255.255.255.0
