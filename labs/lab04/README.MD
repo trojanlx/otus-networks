@@ -339,7 +339,7 @@ R13(config-if)# vrrp 11 ip 10.16.2.126
 
 ```
 R14(config)#ip sla 1
-R14(config-ip-sla)#icmp-echo 10.16.4.1 source-interface ethernet 0/0  (можно указать source-ip)
+R14(config-ip-sla)#icmp-echo 10.16.4.1 source-interface ethernet 0/0
 R14(config-ip-sla-echo)#threshold 2
 R14(config-ip-sla-echo)#timeout 1000
 R14(config-ip-sla-echo)#frequency 3
