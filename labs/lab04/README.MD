@@ -14,8 +14,12 @@
 
 6.Используете IPv4. IPv6 по желанию
   
-### 1. Адресное пространство
+### 1. Разработаете и задокументируете адресное пространство для лабораторного стенда.
+
 ![](netmap.png)
+
+### 2. Настроите ip адреса на каждом активном порту
+
 #### Москва AS 1001
 
 | Device | Interface | IP Address | Subnet Mask | Default Gateway | VLAN |
@@ -154,4 +158,184 @@
 
 
 
-### 2: Настроите ip адреса на каждом активном порту
+
+### 3. Настроите каждый VPC в каждом офисе в своем VLAN.
+
+Выполнено на каждом VPC в соответствии с адресным пространством.
+VPC7
+``
+pcname VPC7
+ip 10.16.3.17 255.255.255.0 10.16.3.126
+``
+``]
+SW2(config)#interface vlan 17
+SW2(config)#interface ethernet 0/2
+SW2(config-if)#description Link ti VPC7
+SW2(config-if)#switchport mode access
+SW2(config-if)#switchport access vlan 17
+``
+
+4.Настроите VLAN/Loopbackup interface управления для сетевых устройств
+
+Настроите VLAN/Loopbackup interface управления для сетевых устройств
+
+Настройка loopback, выполнено на всех маршрутизаторах.
+``
+R13(config)#interface loopback 0
+R13(config-if)#ip address 10.0.0.13 255.255.255.0
+``
+Настройка vlan управления для sw2, выполенно на каждом коммутаторе в соответствии с адресным пространством.
+``
+VLAN 100
+interface vlan 100
+ip address 10.16.10.22 255.255.255.0
+description mgmt
+no shutdown
+``
+5.Настроите сети офисов так, чтобы не возникало broadcast штормов, а использование линков было максимально оптимизировано
+
+Активирован STP и транковые порты для соответствующих VLAN всех локаций
+Настройка на коммутаторах пример с SW5 - SW4
+``
+SW5#show spanning-tree
+
+VLAN0011
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    32779
+             Address     aabb.cc00.2000
+             Cost        100
+             Port        1 (Ethernet0/0)
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+  Bridge ID  Priority    32779  (priority 32768 sys-id-ext 11)
+             Address     aabb.cc00.5000
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+             Aging Time  300 sec
+
+Interface           Role Sts Cost      Prio.Nbr Type
+------------------- ---- --- --------- -------- --------------------------------
+Et0/0               Root FWD 100       128.1    Shr
+Et0/1               Desg FWD 100       128.2    Shr
+Et1/0               Desg FWD 100       128.5    Shr
+Et1/1               Desg FWD 100       128.6    Shr
+
+
+
+VLAN0017
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    32785
+             Address     aabb.cc00.2000
+             Cost        100
+             Port        1 (Ethernet0/0)
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+  Bridge ID  Priority    32785  (priority 32768 sys-id-ext 17)
+             Address     aabb.cc00.5000
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+             Aging Time  300 sec
+
+Interface           Role Sts Cost      Prio.Nbr Type
+------------------- ---- --- --------- -------- --------------------------------
+Et0/0               Root FWD 100       128.1    Shr
+Et0/1               Desg FWD 100       128.2    Shr
+Et1/0               Desg FWD 100       128.5    Shr
+Et1/1               Desg FWD 100       128.6    Shr
+
+
+
+VLAN0100
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    32868
+             Address     aabb.cc00.2000
+             Cost        100
+             Port        1 (Ethernet0/0)
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+  Bridge ID  Priority    32868  (priority 32768 sys-id-ext 100)
+             Address     aabb.cc00.5000
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+             Aging Time  300 sec
+
+Interface           Role Sts Cost      Prio.Nbr Type
+------------------- ---- --- --------- -------- --------------------------------
+Et0/0               Root FWD 100       128.1    Shr
+Et0/1               Desg FWD 100       128.2    Shr
+Et1/0               Desg FWD 100       128.5    Shr
+Et1/1               Desg FWD 100       128.6    Shr 
+``
+``
+SW4#show interfaces trunk
+
+Port        Mode             Encapsulation  Status        Native vlan
+Et0/0       on               802.1q         trunking      1
+Et0/1       on               802.1q         trunking      1
+Et0/2       on               802.1q         trunking      1
+Et0/3       on               802.1q         trunking      1
+Et1/0       on               802.1q         trunking      1
+Et1/1       on               802.1q         trunking      1
+
+Port        Vlans allowed on trunk
+Et0/0       11,17,100
+Et0/1       11,17,100
+Et0/2       11,17,100
+Et0/3       11,17,100
+Et1/0       11,17,100
+Et1/1       11,17,100
+
+Port        Vlans allowed and active in management domain
+Et0/0       11,17,100
+Et0/1       11,17,100
+Et0/2       11,17,100
+Et0/3       11,17,100
+Et1/0       11,17,100
+Et1/1       11,17,100
+
+Port        Vlans in spanning tree forwarding state and not pruned
+Et0/0       11,17,100
+Et0/1       11,17,100
+Et0/2       11,17,100
+Et0/3       11,17,100
+Et1/0       11,17,100
+Et1/1       11,17,100
+``
+Настройка VRRP
+R12 и R13 для vlan 11
+Аналогично был настроен vrrp для vlan 17 на ethernet 0/1.17
+Так же был настроен vrrp для R17/R16
+``
+R12(config)# interface ethernet 0/0.11
+R12(config-if)# vrrp 11 priority 110 
+R12(config-if)# ip address 10.16.2.12 255.255.255.0
+R12(config-if)# vrrp 11 authentication cisco
+R12(config-if)# vrrp 11 timers advertise 3 
+R12(config-if)# vrrp 11 timers learn 
+R12(config-if)# vrrp 11 ip 10.16.2.126
+
+``
+``
+R13(config)# interface ethernet 0/0.11
+R13(config-if)# ip address 10.16.2.13 255.255.255.0
+R13(config-if)# vrrp 11 priority 100
+R13(config-if)# vrrp 11 authentication cisco 
+R13(config-if)# vrrp 11 timers advertise 3 
+R13(config-if)# vrrp 11 timers learn
+R13(config-if)# vrrp 11 ip 10.16.2.126
+``
+Настроен IP SLA для резервных маршрутов между роутерами учитывающий ноды VRRP
+Первый маршрут через 10.16.4.1 (основной)
+Второй 10.16.5.1   (менее приоритетный)
+
+``
+R14(config)#ip sla 1
+R14(config-ip-sla)#icmp-echo 10.16.4.1 source-interface ethernet 0/0  (можно указать source-ip)
+R14(config-ip-sla-echo)#threshold 2
+R14(config-ip-sla-echo)#timeout 1000
+R14(config-ip-sla-echo)#frequency 3
+R14(config-ip-sla-echo)#exit
+R14(config)#ip sla schedule 1 life forever start-time now
+track 1 ip sla 1 reachability
+``
+
+ip route 10.16.2.0 255.255.255.0 10.16.4.1 50 track 1 (указываем более высокую метрику 50 и вешаем track 1,т.е. когда 10.16.4.1 доступен машрут появляется в таблице маршрутизации и перекрывает более низкий,если ляжет он пропадет из таблицы)
+ip route 10.16.2.0 255.255.255.0 10.16.5.1 100  (указываем более низкий приоритет метрики 100)
+Аналогично настроен ip sla для VRRP в Санкт - Петербуг
