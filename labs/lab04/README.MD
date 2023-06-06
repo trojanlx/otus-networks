@@ -164,18 +164,18 @@
 Выполнено на каждом VPC в соответствии с адресным пространством.
 VPC7
 
-``
+```
 pcname VPC7
 ip 10.16.3.17 255.255.255.0 10.16.3.126
-``
+```
 
-``
+```
 SW2(config)#interface vlan 17
 SW2(config)#interface ethernet 0/2
 SW2(config-if)#description Link ti VPC7
 SW2(config-if)#switchport mode access
 SW2(config-if)#switchport access vlan 17
-``
+```
 
 4.Настроите VLAN/Loopbackup interface управления для сетевых устройств
 
@@ -183,10 +183,10 @@ SW2(config-if)#switchport access vlan 17
 
 Настройка loopback, выполнено на всех маршрутизаторах.
 
-``
+```
 R13(config)#interface loopback 0
 R13(config-if)#ip address 10.0.0.13 255.255.255.0
-``
+```
 
 Настройка vlan управления для sw2, выполенно на каждом коммутаторе в соответствии с адресным пространством.
 
