@@ -1,0 +1,88 @@
+version 15.1
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+service compress-config
+!
+hostname SW29
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+!
+ip cef
+!
+!
+no ip domain-lookup
+no ipv6 cef
+ipv6 multicast rpf use-bgp
+!
+!
+!
+!
+!
+!
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+!
+!
+!
+vlan internal allocation policy ascending
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Ethernet0/0
+ description Link to VPC30
+ switchport access vlan 30
+ switchport mode access
+ duplex auto
+!
+interface Ethernet0/1
+ description Link to VPC31
+ switchport access vlan 31
+ switchport mode access
+ duplex auto
+!
+interface Ethernet0/2
+ description Trunk to R28
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 29-31
+ switchport mode trunk
+ duplex auto
+!
+interface Ethernet0/3
+ shutdown
+ duplex auto
+!
+interface Vlan29
+ description mgmt
+ ip address 10.20.29.29 255.255.255.0
+!
+!
+no ip http server
+!
+!
+!
+!
+!
+control-plane
+!
+!
+line con 0
+ logging synchronous
+line aux 0
+line vty 0 4
+!
+end
