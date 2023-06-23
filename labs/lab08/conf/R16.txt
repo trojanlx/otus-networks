@@ -1,0 +1,160 @@
+version 15.5
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R16
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+!
+!
+!
+bsd-client server url https://cloudsso.cisco.com/as/token.oauth2
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+cts logging verbose
+!
+!
+!
+redundancy
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 10.0.0.17 255.255.255.0
+!
+interface Ethernet0/0
+ description Link to SW10
+ no ip address
+!
+interface Ethernet0/0.38
+ encapsulation dot1Q 38
+ ip address 10.30.38.16 255.255.255.0
+ vrrp 38 ip 10.30.38.126
+ vrrp 38 timers advertise 3
+ vrrp 38 timers learn
+ vrrp 38 priority 110
+ vrrp 38 authentication cisco
+!
+interface Ethernet0/0.101
+ encapsulation dot1Q 101
+ ip address 10.30.101.16 255.255.255.0
+!
+interface Ethernet0/1
+ description Link to R18
+ ip address 10.30.16.1 255.255.255.0
+!
+interface Ethernet0/2
+ description Link to SW9
+ no ip address
+!
+interface Ethernet0/2.2
+ description Default Gateway for VLAN 2
+ encapsulation dot1Q 2
+ ip address 10.30.31.16 255.255.255.0
+ vrrp 2 ip 10.30.31.126
+ vrrp 2 timers advertise 3
+ vrrp 2 timers learn
+ vrrp 2 priority 110
+ vrrp 2 authentication cisco
+!
+interface Ethernet0/3
+ description Link to R32
+ ip address 10.30.32.1 255.255.255.0
+!
+!
+router eigrp NG
+ !
+ address-family ipv4 unicast autonomous-system 1
+  !
+  af-interface Ethernet0/3
+   no split-horizon
+  exit-af-interface
+  !
+  topology base
+   auto-summary
+   distribute-list 2 out Ethernet0/3
+   redistribute static
+  exit-af-topology
+  network 10.30.0.0 0.0.255.255
+ exit-address-family
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+ip route 0.0.0.0 0.0.0.0 10.30.16.2
+!
+!
+!
+access-list 2 permit 0.0.0.0
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+ logging synchronous
+line aux 0
+line vty 0 4
+ login
+ transport input none
+!
+!
+end
