@@ -117,8 +117,19 @@ router eigrp NG
  !
  address-family ipv4 unicast autonomous-system 1
   !
+  af-interface Ethernet0/0.101
+   summary-address 10.30.0.0 255.255.0.0
+  exit-af-interface
+  !
+  af-interface Ethernet0/0.38
+   summary-address 10.30.0.0 255.255.0.0
+  exit-af-interface
+  !
+  af-interface Ethernet0/2.2
+   summary-address 10.30.0.0 255.255.0.0
+  exit-af-interface
+  !
   topology base
-   auto-summary
   exit-af-topology
   network 10.30.0.0 0.0.255.255
  exit-address-family
