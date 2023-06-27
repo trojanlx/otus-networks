@@ -6,6 +6,8 @@
 
 ## Задачи. 
 
+В офисе С.-Петербург настроить EIGRP. Использовать EIGRP named-mode для настройки сети.
+
 1. R32 получает только маршрут по умолчанию.
 
 2. R16-17 анонсируют только суммарные префиксы.
@@ -15,7 +17,7 @@
 
 ![](netmap.png)
 
-### 1. R32 получает только маршрут по умолчанию.
+##№ 1. R32 получает только маршрут по умолчанию.
 
 ```
 R32(config)#router eigrp NG
@@ -93,7 +95,7 @@ C        10.30.32.0/24 is directly connected, Ethernet0/0
 L        10.30.32.2/32 is directly connected, Ethernet0/0
 ```
 
-### 2. R16-17 анонсируют только суммарные префиксы.
+##№ 2. R16-17 анонсируют только суммарные префиксы.
 
 
 R16 передает маршрут по умолчанию для R32, передача других маршрутов через Ethernet0/3 (Линк к R32) блокируется через access-list 2 
@@ -102,11 +104,15 @@ R16(config)#router eigrp NG
 R16(config-router)#no shutdown
 R16(config-router)#address-family ipv4 unicast autonomous-system 1
 R16(config-router-af)#network 10.30.0.0 0.0.255.255
-R16(config-router-af)#topology base
-R16(config-router-af-topology)#auto-summary
 R16(config-router-af-topology)#redistribute static
 R16(config)#access-list 2 permit 0.0.0.0
 R16(config-router-af-topology)#distribute-list 2 out Ethernet0/3
+R16(config-router-af)#af-interface ethernet 0/0.38
+R16(config-router-af-interface)#summary-address 10.30.0.0/16
+R16(config-router-af)#af-interface ethernet 0/0.101
+R16(config-router-af-interface)#summary-address 10.30.0.0/16 
+R16(config-router-af)#af-interface ethernet 0/2.2
+R16(config-router-af-interface)#summary-address 10.30.0.0/16
 ```
 
 ```
@@ -134,6 +140,8 @@ Routing Protocol is "eigrp 1"
   EIGRP-IPv4 VR(NG) Address-Family Protocol for AS(1)
     Metric weight K1=1, K2=0, K3=1, K4=0, K5=0 K6=0
     Metric rib-scale 128
+ --More--
+*Jun 27 10:03:09.820: %SYS-5-CONFIG_I: Configured from console by console
     Metric version 64bit
     Soft SIA disabled
     NSF-aware route hold timer is 240
@@ -144,20 +152,23 @@ Routing Protocol is "eigrp 1"
       Maximum path: 4
       Maximum hopcount 100
       Maximum metric variance 1
-      Total Prefix Count: 7
+      Total Prefix Count: 8
       Total Redist Count: 1
 
-  Automatic Summarization: enabled
+  Automatic Summarization: disabled
+  Address Summarization:
+    10.30.0.0/16 for Et0/0.38, Et0/0.101, Et0/2.2
+      Summarizing 6 components with metric 131072000
   Maximum path: 4
   Routing for Networks:
     10.30.0.0/16
   Routing Information Sources:
     Gateway         Distance      Last Update
-    10.30.16.2            90      01:14:29
-    10.30.31.17           90      01:14:32
-    10.30.38.17           90      01:14:32
-    10.30.32.2            90      01:15:21
-    10.30.101.17          90      01:14:32
+    10.30.16.2            90      00:05:11
+    10.30.31.17           90      00:11:23
+    10.30.38.17           90      00:12:08
+    10.30.32.2            90      3d20h
+    10.30.101.17          90      00:12:29
   Distance: internal 90 external 170
 ```
 
@@ -166,7 +177,12 @@ R17(config)#router eigrp NG
 R17(config-router)#no shutdown
 R17(config-router)#address-family ipv4 unicast autonomous-system 1
 R17(config-router-af)#network 10.30.0.0 0.0.255.255
-R17(config-router-af-topology)#auto-summary
+R17(config-router-af)#af-interface ethernet 0/0.101
+R17(config-router-af-interface)#summary-address 10.30.0.0/16
+R17(config-router-af)#af-interface ethernet 0/0.38
+R17(config-router-af-interface)#summary-address 10.30.0.0/16
+R17(config-router-af)#af-interface ethernet 0/2.2
+R17(config-router-af-interface)#summary-address 10.30.0.0/16
 ```
 
 ```
@@ -202,18 +218,21 @@ Routing Protocol is "eigrp 1"
       Maximum path: 4
       Maximum hopcount 100
       Maximum metric variance 1
-      Total Prefix Count: 5
+      Total Prefix Count: 6
       Total Redist Count: 0
 
-  Automatic Summarization: enabled
+  Automatic Summarization: disabled
+  Address Summarization:
+    10.30.0.0/16 for Et0/0.101, Et0/0.38, Et0/2.2
+      Summarizing 5 components with metric 131072000
   Maximum path: 4
   Routing for Networks:
     10.30.0.0/16
   Routing Information Sources:
     Gateway         Distance      Last Update
-    10.30.17.2            90      01:16:15
-    10.30.31.16           90      01:16:12
-    10.30.38.16           90      01:16:12
-    10.30.101.16          90      01:16:12
+    10.30.17.2            90      00:09:11
+    10.30.31.16           90      00:02:01
+    10.30.38.16           90      00:02:46
+    10.30.101.16          90      00:03:07
   Distance: internal 90 external 170
 ```
