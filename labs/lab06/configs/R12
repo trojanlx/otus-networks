@@ -71,7 +71,7 @@ redundancy
 !
 !
 interface Loopback0
- ip address 10.0.0.12 255.255.255.0
+ ip address 10.16.11.12 255.255.255.0
 !
 interface Ethernet0/0
  description trunk link to SW4
@@ -116,7 +116,6 @@ interface Ethernet0/3
 !
 router ospf 1
  network 0.0.0.0 255.255.255.255 area 10
- default-information originate
 !
 ip forward-protocol nd
 !
