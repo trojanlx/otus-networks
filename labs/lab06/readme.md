@@ -30,7 +30,11 @@ router ospf 1
  network 10.16.5.0 0.0.0.255 area 10
  network 10.16.9.0 0.0.0.255 area 101
  network 10.16.10.0 0.0.0.255 area 0
- passive-interface ethernet 0/2
+ passive-interface default
+ no passive-interface ethernet 0/0
+ no passive-interface ethernet 0/1
+ no passive-interface ethernet 0/3
+ no passive-interface ethernet 1/0
 ```
 
 ```
