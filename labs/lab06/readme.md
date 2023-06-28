@@ -44,7 +44,11 @@ router ospf 1
  network 10.16.7.0 0.0.0.255 area 10
  network 10.16.8.0 0.0.0.255 area 102
  network 10.16.12.0 0.0.0.255 area 0
- passive-interface ethernet 0/2
+ passive-interface default  
+ no passive-interface ethernet 0/0
+ no passive-interface ethernet 0/1
+ no passive-interface ethernet 0/3
+ no passive-interface ethernet 1/0
  default-information originate
 ip route 0.0.0.0 0.0.0.0 10.18.1.1
 ip prefix-list FILTER-INTO-AREA-102 seq 10 deny 10.16.9.0/24
