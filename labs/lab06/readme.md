@@ -375,6 +375,9 @@ R12
 ```
 router ospf 1
  network 0.0.0.0 255.255.255.255 area 10
+ passive-interface default
+ no passive-interface ethernet 0/2
+ no passive-interface ethernet 0/3
 ```
 
 R13
@@ -382,6 +385,9 @@ R13
 ```
 router ospf 1
  network 0.0.0.0 255.255.255.255 area 10
+ passive-interface default
+ no passive-interface ethernet 0/2
+ no passive-interface ethernet 0/3
 ```
 
 ```
