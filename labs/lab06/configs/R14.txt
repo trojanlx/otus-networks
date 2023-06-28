@@ -71,7 +71,7 @@ redundancy
 !
 !
 interface Loopback0
- ip address 10.0.0.14 255.255.255.0
+ ip address 10.16.11.14 255.255.255.0
 !
 interface Ethernet0/0
  description Link to R12
@@ -89,13 +89,29 @@ interface Ethernet0/3
  description Link to R19
  ip address 10.16.9.2 255.255.255.0
 !
+interface Ethernet1/0
+ description Link to R15
+ ip address 10.16.12.1 255.255.255.0
+!
+interface Ethernet1/1
+ no ip address
+ shutdown
+!
+interface Ethernet1/2
+ no ip address
+ shutdown
+!
+interface Ethernet1/3
+ no ip address
+ shutdown
+!
 router ospf 1
  area 101 stub no-summary
+ passive-interface Ethernet0/2
  network 10.16.4.0 0.0.0.255 area 10
  network 10.16.5.0 0.0.0.255 area 10
  network 10.16.9.0 0.0.0.255 area 101
- network 10.17.1.0 0.0.0.255 area 0
- default-information originate
+ network 10.16.12.0 0.0.0.255 area 0
 !
 ip forward-protocol nd
 !
