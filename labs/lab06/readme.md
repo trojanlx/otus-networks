@@ -635,6 +635,8 @@ L        10.16.9.1/32 is directly connected, Ethernet0/0
 ```
 router ospf 1
  network 0.0.0.0 255.255.255.255 area 102
+ passive-interface default
+ no passive-interface ethernet 0/0
 ```
 
 ```
