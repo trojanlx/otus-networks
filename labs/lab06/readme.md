@@ -573,6 +573,8 @@ O IA     10.16.12.0/24 [110/20] via 10.16.7.2, 17:05:50, Ethernet0/2
 ```
 router ospf 1
  area 101 stub no-summary
+ passive-interface default
+ no passive-interface Ethernet0/0
  network 0.0.0.0 255.255.255.255 area 101
 ```
 
