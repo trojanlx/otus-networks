@@ -71,13 +71,17 @@ R18(config-router)#neighbor 10.19.3.1 remote-as 520
 R18 Петербург 
 R15 (10.17.1.4) - Москва
 R15 (10.18.1.2) - Москва
+
+```
 R18#ping 10.18.1.2
 Type escape sequence to abort.
 Sending 5, 100-byte ICMP Echos to 10.18.1.2, timeout is 2 seconds:
 !!!!!
 Success rate is 100 percent (5/5), round-trip min/avg/max = 1/1/1 ms
+
 R18#ping 10.17.1.4
 Type escape sequence to abort.
 Sending 5, 100-byte ICMP Echos to 10.17.1.4, timeout is 2 seconds:
 !!!!!
 Success rate is 100 percent (5/5), round-trip min/avg/max = 1/1/1 ms
+```
