@@ -1,0 +1,137 @@
+version 15.5
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R25
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+!
+!
+!
+bsd-client server url https://cloudsso.cisco.com/as/token.oauth2
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+cts logging verbose
+!
+!
+!
+redundancy
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 10.0.0.25 255.255.255.255
+!
+interface Ethernet0/0
+ description Link to R23
+ ip address 10.19.2.2 255.255.255.0
+ ip router isis
+!
+interface Ethernet0/1
+ description Link to R27
+ ip address 10.19.9.1 255.255.255.0
+!
+interface Ethernet0/2
+ description Link to R26
+ ip address 10.19.7.2 255.255.255.0
+ ip router isis
+!
+interface Ethernet0/3
+ description Link to R28
+ ip address 10.19.8.1 255.255.255.0
+!
+router isis
+ net 49.2222.0025.0025.0025.00
+ is-type level-2-only
+ passive-interface default
+ no passive-interface Ethernet0/0
+ no passive-interface Ethernet0/2
+!
+router bgp 520
+ bgp cluster-id 520
+ bgp log-neighbor-changes
+ network 10.19.2.0 mask 255.255.255.0
+ network 10.19.7.0 mask 255.255.255.0
+ network 10.19.8.0 mask 255.255.255.0
+ network 10.19.9.0 mask 255.255.255.0
+ neighbor 10.0.0.23 remote-as 520
+ neighbor 10.0.0.23 update-source Loopback0
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+ logging synchronous
+line aux 0
+line vty 0 4
+ login
+ transport input none
+!
+!
+end
