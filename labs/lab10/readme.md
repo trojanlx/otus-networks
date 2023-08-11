@@ -194,10 +194,7 @@ RPKI validation codes: V valid, I invalid, N Not found
 ```
 R18(config)#router bgp 2042
 R18(config-router)#bgp bestpath as-path multipath-relax
-R24(config)#router bgp 520
-R24(config-router)#bgp bestpath as-path multipath-relax
-R26(config)#router bgp 520
-R26(config-router)#bgp bestpath as-path multipath-relax
+R18(config-router)#maximum-paths 2
 ```
 
 ```
