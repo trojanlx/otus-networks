@@ -27,65 +27,18 @@ BGP. Фильтрация
 
 
 ```
-R14(config)#router ospf 1
-R14(config)#no passive-interface loopback 0
-R14(config)#network 10.16.11.0 0.0.0.255 area 0
+R14(config)#ip as-path access-list 1 permit ^$
+R14(config)#route-map R22-out permit 5
+R14(config-route-map)#match as-path 1
 R14(config)#router bgp 1001
-R14(config-router)#neighbor 10.16.11.15 remote-as 1001
-R14(config-router)#neighbor 10.16.11.15 update-source loopback 0
-R15(config)#router ospf 1
-R15(config)#no passive-interface loopback 0
-R15(config)#network 10.16.11.0 0.0.0.255 area 0
-R15(config)#router bgp 1001
-R15(config-router)#network 10.16.6.0 mask 255.255.255.0
-R15(config-router)#network 10.16.7.0 mask 255.255.255.0
-R15(config-router)#network 10.16.11.0 mask 255.255.255.0
-R15(config-router)#network 10.16.12.0 mask 255.255.255.0
-R15(config-router)#neighbor 10.16.11.14 remote-as 1001
-R15(config-router)#neighbor 10.16.11.14 update-source loopback 0
+R14(config-router)#neighbor 10.17.1.1 route-map R22-out out
 ```
 
-### 2. Настроите iBGP в провайдере Триада, с использованием RR.
-
-Роутер R23 будет reflector server
+Теперь мы не анонсируем маршруты других AS на R14
 
 ```
-R23(config)#router bgp 520
-R23(config-router)#neighbor RR-CLIENT peer-group
-R23(config-router)#neighbor RR-CLIENT remote-as 520
-R23(config-router)#neighbor RR-CLIENT update-source loopback 0
-R23(config-router)#neighbor RR-CLIENT route-reflector-client
-R23(config-router)#neighbor 10.0.0.24 peer-group RR-CLIENT
-R23(config-router)#neighbor 10.0.0.26 peer-group RR-CLIENT
-R23(config-router)#neighbor 10.0.0.25 peer-group RR-CLIENT
-R23(config-router)#bgp cluster-id 520
-```
-
-R24-R26 будут клиентами R23 и находятся в одном кластере, чтобы предотвратить повторное получение маршрутов и уменьшить нагрузку на сеть, настройки одинаковы для всех клиентов.
-```
-R24(config)#router bgp 520
-R24(config-router)#neighbor 10.0.0.23 remote-as 520
-R24(config-router)#bgp cluster-id 520
-```
-
-
-### 3. Настройте офис Москва так, чтобы приоритетным провайдером стал Ламас.
-
-```
-R14(config)#router bgp 1001
-R14(config-router)#neighbor 10.16.11.15 weight 32768
-```
-
-```
-R15(config)#router bgp 1001
-R15(config-router)#neighbor 10.16.12.1 next-hop-self
-```
-
-Теперь R14 имеет приоритетный маршрут через R15 (10.16.11.15) с выходом на Ламас.
-
-```
-R14#show ip bgp
-BGP table version is 29, local router ID is 10.16.11.14
+R14#show ip bgp neighbors 10.17.1.1 advertised-routes
+BGP table version is 26, local router ID is 10.16.11.14
 Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
               r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter,
               x best-external, a additional-path, c RIB-compressed,
@@ -93,59 +46,21 @@ Origin codes: i - IGP, e - EGP, ? - incomplete
 RPKI validation codes: V valid, I invalid, N Not found
 
      Network          Next Hop            Metric LocPrf Weight Path
- r>i 10.16.2.0/24     10.16.11.15             20    100  32768 i
- r>i 10.16.3.0/24     10.16.11.15             20    100  32768 i
- *>  10.16.4.0/24     0.0.0.0                  0         32768 i
- *>  10.16.5.0/24     0.0.0.0                  0         32768 i
+ *>  10.16.2.0/24     10.16.4.1               20         32768 i
+ *>  10.16.3.0/24     10.16.4.1               20         32768 i
  r>i 10.16.6.0/24     10.16.11.15              0    100  32768 i
- r>i 10.16.7.0/24     10.16.11.15              0    100  32768 i
  r>i 10.16.8.0/24     10.16.11.15              0    100  32768 i
  *>  10.16.9.0/24     0.0.0.0                  0         32768 i
  r>i 10.16.11.0/24    10.16.11.15              0    100  32768 i
- * i 10.16.12.0/24    10.16.11.15              0    100  32768 i
- *>                   0.0.0.0                  0         32768 i
+ *>  10.16.12.0/24    0.0.0.0                  0         32768 i
  *>  10.17.1.0/24     0.0.0.0                  0         32768 i
- *>i 10.17.2.0/24     10.16.11.15              0    100  32768 301 i
- *                    10.17.1.1                              0 101 301 i
- *>i 10.17.3.0/24     10.16.11.15              0    100  32768 301 520 i
- *                    10.17.1.1                              0 101 520 i
- *>i 10.18.1.0/24     10.16.11.15              0    100  32768 301 i
- *                    10.17.1.1                              0 101 301 i
- *>i 10.18.3.0/24     10.16.11.15              0    100  32768 301 i
- *                    10.17.1.1                              0 101 301 i
- *>i 10.19.1.0/24     10.16.11.15              0    100  32768 301 520 i
- *                    10.17.1.1                              0 101 520 i
- *>i 10.19.2.0/24     10.16.11.15              0    100  32768 301 520 i
- *                    10.17.1.1                              0 101 520 i
- *>i 10.19.3.0/24     10.16.11.15              0    100  32768 301 520 i
- *                    10.17.1.1                              0 101 520 i
- *>i 10.19.4.0/24     10.16.11.15              0    100  32768 301 520 i
- *                    10.17.1.1                              0 101 520 i
- *>i 10.19.5.0/24     10.16.11.15              0    100  32768 301 520 2042 i
- *                    10.17.1.1                              0 101 520 i
- *>i 10.19.6.0/24     10.16.11.15              0    100  32768 301 101 520 i
- *                    10.17.1.1                              0 101 520 i
- *>i 10.19.7.0/24     10.16.11.15              0    100  32768 301 101 520 i
- *                    10.17.1.1                              0 101 520 i
- *>i 10.19.8.0/24     10.16.11.15              0    100  32768 301 101 520 i
- *                    10.17.1.1                              0 101 520 i
- *>i 10.19.9.0/24     10.16.11.15              0    100  32768 301 101 520 i
- *                    10.17.1.1                              0 101 520 i
- *>i 10.30.16.0/24    10.16.11.15              0    100  32768 301 520 2042 i
- *                    10.17.1.1                              0 101 520 2042 i
- *>i 10.30.17.0/24    10.16.11.15              0    100  32768 301 520 2042 i
- *                    10.17.1.1                              0 101 520 2042 i
- *>i 10.30.31.0/24    10.16.11.15              0    100  32768 301 520 2042 i
- *                    10.17.1.1                              0 101 520 2042 i
- *>i 10.30.38.0/24    10.16.11.15              0    100  32768 301 520 2042 i
- *                    10.17.1.1                              0 101 520 2042 i
- ```
- 
- R15 имеет приоритетный маршрут через R21 (Ламас), т.к. eBGP маршруты имеют более высокий приоритет над iBGP маршрутами.
- 
 ```
-R15#show ip bgp
-BGP table version is 26, local router ID is 10.16.11.15
+
+Для R15 аналогичная конфигурация к соседу 10.18.1.1 
+
+```
+R15#show ip bgp neighbors 10.18.1.1 advertised-routes
+BGP table version is 64, local router ID is 10.16.11.15
 Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
               r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter,
               x best-external, a additional-path, c RIB-compressed,
@@ -154,49 +69,36 @@ RPKI validation codes: V valid, I invalid, N Not found
 
      Network          Next Hop            Metric LocPrf Weight Path
  r>i 10.16.2.0/24     10.16.4.1               20    100      0 i
- * i 10.16.3.0/24     10.16.4.1               20    100      0 i
- *>                   10.16.6.1               20         32768 i
+ *>  10.16.3.0/24     10.16.6.1               20         32768 i
  *>  10.16.6.0/24     0.0.0.0                  0         32768 i
  *>  10.16.8.0/24     0.0.0.0                  0         32768 i
  r>i 10.16.9.0/24     10.16.11.14              0    100      0 i
  *>  10.16.11.0/24    0.0.0.0                  0         32768 i
- * i 10.16.12.0/24    10.16.11.14              0    100      0 i
- *>                   0.0.0.0                  0         32768 i
+ *>  10.16.12.0/24    0.0.0.0                  0         32768 i
  *>i 10.17.1.0/24     10.16.11.14              0    100      0 i
- *>  10.17.2.0/24     10.18.1.1                0             0 301 i
- *>  10.17.3.0/24     10.18.1.1                              0 301 520 i
- r>  10.18.1.0/24     10.18.1.1                0             0 301 i
- *>  10.18.3.0/24     10.18.1.1                0             0 301 i
- *>  10.19.1.0/24     10.18.1.1                              0 301 520 i
- *>  10.19.2.0/24     10.18.1.1                              0 301 520 i
- *>  10.19.3.0/24     10.18.1.1                              0 301 520 i
- *>  10.19.4.0/24     10.18.1.1                              0 301 520 i
- *>  10.19.5.0/24     10.18.1.1                              0 301 520 2042 i
- *>  10.19.6.0/24     10.18.1.1                              0 301 101 520 i
- *>  10.19.7.0/24     10.18.1.1                              0 301 101 520 i
- *>  10.19.8.0/24     10.18.1.1                              0 301 101 520 i
- *>  10.19.9.0/24     10.18.1.1                              0 301 101 520 i
- *>  10.30.16.0/24    10.18.1.1                              0 301 520 2042 i
- *>  10.30.17.0/24    10.18.1.1                              0 301 520 2042 i
- *>  10.30.31.0/24    10.18.1.1                              0 301 520 2042 i
- *>  10.30.38.0/24    10.18.1.1                              0 301 520 2042 i
 
+Total number of prefixes 8
 ```
 
-### 4. Настройте офис С.-Петербург так, чтобы трафик до любого офиса распределялся по двум линкам одновременно.
+### 2. Настроить фильтрацию в офисе С.-Петербург так, чтобы не появилось транзитного трафика(Prefix-list).
 
 ```
+R18(config)#rip prefix-list ALLOW_SPECIFIC_NETWORKS seq 10 permit 10.19.3.0/24
+R18(config)#rip prefix-list ALLOW_SPECIFIC_NETWORKS seq 11 permit 10.19.5.0/24
+R18(config)#rip prefix-list ALLOW_SPECIFIC_NETWORKS seq 12 permit 10.30.16.0/24
+R18(config)#rip prefix-list ALLOW_SPECIFIC_NETWORKS seq 13 permit 10.30.17.0/24
+R18(config)#rip prefix-list ALLOW_SPECIFIC_NETWORKS seq 14 permit 10.30.31.0/24
+R18(config)#rip prefix-list ALLOW_SPECIFIC_NETWORKS seq 15 permit 10.30.38.0/24
 R18(config)#router bgp 2042
-R18(config-router)#bgp bestpath as-path multipath-relax
-R24(config)#router bgp 520
-R24(config-router)#bgp bestpath as-path multipath-relax
-R26(config)#router bgp 520
-R26(config-router)#bgp bestpath as-path multipath-relax
+R18(config-router)#neighbor 10.19.3.1 prefix-list ALLOW_SPECIFIC_NETWORKS out
+R18(config-router)#neighbor 10.19.5.1 prefix-list ALLOW_SPECIFIC_NETWORKS out
 ```
 
+R18 анонсирует своим соседям только сети AS 2042
+
 ```
-R18#show ip bgp
-BGP table version is 29, local router ID is 10.0.0.18
+R18#show ip bgp neighbors 10.19.3.1 advertised-routes
+BGP table version is 50, local router ID is 10.0.0.18
 Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
               r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter,
               x best-external, a additional-path, c RIB-compressed,
@@ -204,64 +106,97 @@ Origin codes: i - IGP, e - EGP, ? - incomplete
 RPKI validation codes: V valid, I invalid, N Not found
 
      Network          Next Hop            Metric LocPrf Weight Path
- *>  10.16.2.0/24     10.19.3.1                              0 520 301 1001 i
- *                    10.19.5.1                              0 520 101 1001 i
- *>  10.16.3.0/24     10.19.3.1                              0 520 301 1001 i
- *                    10.19.5.1                              0 520 101 1001 i
- *>  10.16.4.0/24     10.19.3.1                              0 520 301 1001 i
- *                    10.19.5.1                              0 520 101 1001 i
- *>  10.16.5.0/24     10.19.3.1                              0 520 301 1001 i
- *                    10.19.5.1                              0 520 101 1001 i
- *>  10.16.6.0/24     10.19.3.1                              0 520 301 1001 i
- *                    10.19.5.1                              0 520 101 1001 i
- *>  10.16.7.0/24     10.19.3.1                              0 520 301 1001 i
- *                    10.19.5.1                              0 520 101 1001 i
- *>  10.16.8.0/24     10.19.3.1                              0 520 301 1001 i
- *                    10.19.5.1                              0 520 101 1001 i
- *>  10.16.9.0/24     10.19.3.1                              0 520 301 1001 i
- *                    10.19.5.1                              0 520 101 1001 i
- *>  10.16.11.0/24    10.19.3.1                              0 520 301 1001 i
- *                    10.19.5.1                              0 520 101 1001 i
- *>  10.16.12.0/24    10.19.3.1                              0 520 301 1001 i
- *                    10.19.5.1                              0 520 101 1001 i
- *>  10.17.1.0/24     10.19.3.1                              0 520 301 1001 i
- *                    10.19.5.1                              0 520 101 1001 i
- *>  10.17.2.0/24     10.19.3.1                              0 520 301 i
- *                    10.19.5.1                              0 520 301 i
- *>  10.17.3.0/24     10.19.3.1                              0 520 i
- *                    10.19.5.1                              0 520 i
- *>  10.18.1.0/24     10.19.3.1                              0 520 301 i
- *                    10.19.5.1                              0 520 301 i
- *>  10.18.3.0/24     10.19.3.1                0             0 520 i
- *                    10.19.5.1                              0 520 i
- *>  10.19.1.0/24     10.19.3.1                0             0 520 i
- *                    10.19.5.1                              0 520 i
- *>  10.19.2.0/24     10.19.3.1                              0 520 i
- *                    10.19.5.1                              0 520 i
- *   10.19.3.0/24     10.19.3.1                0             0 520 i
- *                    10.19.5.1                              0 520 i
- *>                   0.0.0.0                  0         32768 i
- *>  10.19.4.0/24     10.19.3.1                0             0 520 i
- *                    10.19.5.1                0             0 520 i
- *   10.19.5.0/24     10.19.3.1                              0 520 i
- *                    10.19.5.1                0             0 520 i
- *>                   0.0.0.0                  0         32768 i
- *>  10.19.6.0/24     10.19.3.1                              0 520 i
- *                    10.19.5.1                0             0 520 i
- *>  10.19.7.0/24     10.19.3.1                              0 520 i
- *                    10.19.5.1                0             0 520 i
- *>  10.19.8.0/24     10.19.3.1                              0 520 i
- *                    10.19.5.1                              0 520 i
- *>  10.19.9.0/24     10.19.3.1                              0 520 i
- *                    10.19.5.1                              0 520 i
+ *>  10.19.3.0/24     0.0.0.0                  0         32768 i
+ *>  10.19.5.0/24     0.0.0.0                  0         32768 i
  *>  10.30.16.0/24    0.0.0.0                  0         32768 i
  *>  10.30.17.0/24    0.0.0.0                  0         32768 i
  *>  10.30.31.0/24    10.30.16.1         1536000         32768 i
  *>  10.30.38.0/24    10.30.16.1         1536000         32768 i
 
+Total number of prefixes 6
 ```
 
-bgp bestpath as-path multipath-relax заработал, есть маршруты с одинаковым AS_PATH.
+```
+R18#show ip bgp neighbors 10.19.5.1 advertised-routes
+BGP table version is 50, local router ID is 10.0.0.18
+Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
+              r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter,
+              x best-external, a additional-path, c RIB-compressed,
+Origin codes: i - IGP, e - EGP, ? - incomplete
+RPKI validation codes: V valid, I invalid, N Not found
+
+     Network          Next Hop            Metric LocPrf Weight Path
+ *>  10.19.3.0/24     0.0.0.0                  0         32768 i
+ *>  10.19.5.0/24     0.0.0.0                  0         32768 i
+ *>  10.30.16.0/24    0.0.0.0                  0         32768 i
+ *>  10.30.17.0/24    0.0.0.0                  0         32768 i
+ *>  10.30.31.0/24    10.30.16.1         1536000         32768 i
+ *>  10.30.38.0/24    10.30.16.1         1536000         32768 i
+
+Total number of prefixes 6
+```
+
+
+R15 получает от Ламас (R21) только дефолт и маршрут в сети С.-Петербург
+
+
+### 3. Настроить провайдера Киторн так, чтобы в офис Москва отдавался только маршрут по умолчанию.
+
+```
+R22(config)#router bgp 101
+R22(config-router)#neighbor 10.17.1.4 default-originate
+R22(config)#ip prefix-list ALL deny 0.0.0.0/0 Le 32
+R22(config)#router bgp 101
+R22(config-router)#neighbor 10.17.1.4 prefix-list ALL out
+```
+
+R14 получил дефолт от R22 (10.17.1.1) и больше ничего
+
+```
+R14(config)#router bgp 1001
+R14(config-router)#neighbor 10.17.1.1 soft-reconfiguration inbound
+R14#show ip bgp neighbors 10.17.1.1 received-routes
+BGP table version is 27, local router ID is 10.16.11.14
+Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
+              r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter,
+              x best-external, a additional-path, c RIB-compressed,
+Origin codes: i - IGP, e - EGP, ? - incomplete
+RPKI validation codes: V valid, I invalid, N Not found
+
+     Network          Next Hop            Metric LocPrf Weight Path
+ *>  0.0.0.0          10.17.1.1                              0 101 i
+
+Total number of prefixes 1
+R14#
+```
+
+
+# 4. Настроить провайдера Ламас так, чтобы в офис Москва отдавался только маршрут по умолчанию и префикс офиса С.-Петербург.
+
+```
+R21(config)#ip prefix-list ALLOW_ONLY_10.30.17.0 seq 10 permit 10.30.17.0/24
+R21(config)#router bgp 301
+R21(config-router)#neighbor 10.18.1.2 default-originate
+R21(config-router)#neighbor 10.18.1.2 prefix-list ALLOW_ONLY_10.30.17.0 out
+```
+
+```
+R15(config-router)#neighbor 10.18.1.1 soft-reconfiguration inbound
+R15#show ip bgp neighbors 10.18.1.1 received-routes
+BGP table version is 83, local router ID is 10.16.11.15
+Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
+              r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter,
+              x best-external, a additional-path, c RIB-compressed,
+Origin codes: i - IGP, e - EGP, ? - incomplete
+RPKI validation codes: V valid, I invalid, N Not found
+
+     Network          Next Hop            Metric LocPrf Weight Path
+ *   0.0.0.0          10.18.1.1                              0 301 i
+ *   10.30.17.0/24    10.18.1.1                              0 301 520 2042 i
+
+Total number of prefixes 2
+```
+R15 получает от Ламас (R21) только дефолт и маршрут в сети С.-Петербург
 
 ### 5. Все сети в лабораторной работе должны иметь IP связность.
 
