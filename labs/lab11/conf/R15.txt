@@ -131,9 +131,13 @@ router bgp 1001
  neighbor 10.16.11.14 update-source Loopback0
  neighbor 10.16.11.14 next-hop-self
  neighbor 10.18.1.1 remote-as 301
+ neighbor 10.18.1.1 soft-reconfiguration inbound
+ neighbor 10.18.1.1 route-map R21-in in
+ neighbor 10.18.1.1 route-map R21-out out
 !
 ip forward-protocol nd
 !
+ip as-path access-list 1 permit ^$
 !
 no ip http server
 no ip http secure-server
@@ -141,6 +145,12 @@ no ip http secure-server
 !
 ip prefix-list FILTER-INTO-AREA-102 seq 10 deny 10.16.9.0/24
 ip prefix-list FILTER-INTO-AREA-102 seq 20 permit 0.0.0.0/0 le 32
+!
+route-map R21-out permit 5
+ match as-path 1
+!
+route-map R21-in permit 10
+ set local-preference 200
 !
 !
 !

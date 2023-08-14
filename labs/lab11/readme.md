@@ -136,10 +136,6 @@ RPKI validation codes: V valid, I invalid, N Not found
 Total number of prefixes 6
 ```
 
-
-R15 получает от Ламас (R21) только дефолт и маршрут в сети С.-Петербург
-
-
 ### 3. Настроить провайдера Киторн так, чтобы в офис Москва отдавался только маршрут по умолчанию.
 
 ```
@@ -167,7 +163,6 @@ RPKI validation codes: V valid, I invalid, N Not found
  *>  0.0.0.0          10.17.1.1                              0 101 i
 
 Total number of prefixes 1
-R14#
 ```
 
 
@@ -196,6 +191,7 @@ RPKI validation codes: V valid, I invalid, N Not found
 
 Total number of prefixes 2
 ```
+
 R15 получает от Ламас (R21) только дефолт и маршрут в сети С.-Петербург
 
 ### 5. Все сети в лабораторной работе должны иметь IP связность.

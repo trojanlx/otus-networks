@@ -130,13 +130,19 @@ router bgp 1001
  neighbor 10.16.11.15 update-source Loopback0
  neighbor 10.16.11.15 weight 32768
  neighbor 10.17.1.1 remote-as 101
+ neighbor 10.17.1.1 soft-reconfiguration inbound
+ neighbor 10.17.1.1 route-map R22-out out
 !
 ip forward-protocol nd
 !
+ip as-path access-list 1 permit ^$
 !
 no ip http server
 no ip http secure-server
 !
+!
+route-map R22-out permit 5
+ match as-path 1
 !
 !
 !
