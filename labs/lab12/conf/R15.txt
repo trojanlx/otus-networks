@@ -1,0 +1,197 @@
+version 15.5
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R15
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+!
+!
+!
+bsd-client server url https://cloudsso.cisco.com/as/token.oauth2
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+cts logging verbose
+!
+!
+!
+redundancy
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 10.16.11.15 255.255.255.0
+!
+interface Ethernet0/0
+ description link to R13
+ ip address 10.16.7.2 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly in
+!
+interface Ethernet0/1
+ description Link to R12
+ ip address 10.16.6.2 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly in
+!
+interface Ethernet0/2
+ description Link to R21
+ ip address 10.18.1.2 255.255.255.0
+ ip nat outside
+ ip virtual-reassembly in
+!
+interface Ethernet0/3
+ description Link to R20
+ ip address 10.16.8.2 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly in
+!
+interface Ethernet1/0
+ description Link to R14
+ ip address 10.16.12.2 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly in
+!
+interface Ethernet1/1
+ no ip address
+ shutdown
+!
+interface Ethernet1/2
+ no ip address
+ shutdown
+!
+interface Ethernet1/3
+ no ip address
+ shutdown
+!
+router ospf 1
+ area 102 filter-list prefix FILTER-INTO-AREA-102 in
+ passive-interface default
+ no passive-interface Ethernet0/0
+ no passive-interface Ethernet0/1
+ no passive-interface Ethernet0/3
+ no passive-interface Ethernet1/0
+ no passive-interface Loopback0
+ network 10.16.6.0 0.0.0.255 area 10
+ network 10.16.7.0 0.0.0.255 area 10
+ network 10.16.8.0 0.0.0.255 area 102
+ network 10.16.11.0 0.0.0.255 area 0
+ network 10.16.12.0 0.0.0.255 area 0
+ default-information originate
+!
+router bgp 1001
+ bgp log-neighbor-changes
+ network 10.16.3.0 mask 255.255.255.0
+ network 10.16.6.0 mask 255.255.255.0
+ network 10.16.8.0 mask 255.255.255.0
+ network 10.16.11.0 mask 255.255.255.0
+ network 10.16.12.0 mask 255.255.255.0
+ network 10.50.1.1 mask 255.255.255.255
+ network 10.51.1.1 mask 255.255.255.255
+ neighbor 10.16.11.14 remote-as 1001
+ neighbor 10.16.11.14 update-source Loopback0
+ neighbor 10.16.11.14 next-hop-self
+ neighbor 10.18.1.1 remote-as 301
+ neighbor 10.18.1.1 soft-reconfiguration inbound
+ neighbor 10.18.1.1 route-map R21-in in
+ neighbor 10.18.1.1 route-map R21-out out
+!
+ip forward-protocol nd
+!
+ip as-path access-list 1 permit ^$
+!
+no ip http server
+no ip http secure-server
+ip nat inside source list NAT_ACL interface Ethernet0/2 overload
+ip nat inside source static 10.16.8.1 10.50.1.1
+ip nat inside source static 10.16.9.1 10.51.1.1
+ip route 10.50.1.1 255.255.255.255 Null0
+ip route 10.51.1.1 255.255.255.255 Null0
+!
+ip access-list standard NAT_ACL
+ permit 10.16.0.0 0.0.255.255
+!
+!
+ip prefix-list FILTER-INTO-AREA-102 seq 10 deny 10.16.9.0/24
+ip prefix-list FILTER-INTO-AREA-102 seq 20 permit 0.0.0.0/0 le 32
+!
+route-map R21-out permit 5
+ match as-path 1
+!
+route-map R21-in permit 10
+ set local-preference 200
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+ logging synchronous
+line aux 0
+line vty 0 4
+ login
+ transport input none
+!
+ntp update-calendar
+ntp server 10.16.11.12 prefer source Loopback0
+ntp server 10.16.11.13 source Loopback0
+!
+end

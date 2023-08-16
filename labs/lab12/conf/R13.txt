@@ -1,0 +1,167 @@
+version 15.5
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R13
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+!
+!
+!
+bsd-client server url https://cloudsso.cisco.com/as/token.oauth2
+clock timezone UTC 3 0
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+ip dhcp excluded-address 10.16.3.126
+ip dhcp excluded-address 10.16.2.126
+ip dhcp excluded-address 10.16.2.12
+ip dhcp excluded-address 10.16.3.12
+ip dhcp excluded-address 10.16.2.13
+ip dhcp excluded-address 10.16.3.13
+!
+ip dhcp pool VLAN11
+ network 10.16.2.0 255.255.255.0
+ default-router 10.16.2.126
+!
+ip dhcp pool VLAN17
+ network 10.16.3.0 255.255.255.0
+ default-router 10.16.3.126
+!
+!
+!
+no ip domain lookup
+ip cef
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+cts logging verbose
+!
+!
+!
+redundancy
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 10.16.11.13 255.255.255.0
+!
+interface Ethernet0/0
+ description Trunk link to SW5
+ no ip address
+!
+interface Ethernet0/0.11
+ description Default gateway for vlan 11
+ encapsulation dot1Q 11
+ ip address 10.16.2.13 255.255.255.0
+ vrrp 11 ip 10.16.2.126
+ vrrp 11 timers advertise 3
+ vrrp 11 timers learn
+ vrrp 11 authentication cisco
+!
+interface Ethernet0/0.100
+ description Default gateway fo vlan 100
+ encapsulation dot1Q 100
+ ip address 10.16.10.31 255.255.255.0
+!
+interface Ethernet0/1
+ description Trunk link to SW4
+ no ip address
+!
+interface Ethernet0/1.17
+ description Default Gateway for VLAN 17
+ encapsulation dot1Q 17
+ ip address 10.16.3.13 255.255.255.0
+ vrrp 17 ip 10.16.3.126
+ vrrp 17 timers advertise 3
+ vrrp 17 timers learn
+ vrrp 17 authentication cisco
+!
+interface Ethernet0/2
+ description Link to R15
+ ip address 10.16.7.1 255.255.255.0
+!
+interface Ethernet0/3
+ description Link to R14
+ ip address 10.16.5.1 255.255.255.0
+!
+router ospf 1
+ passive-interface default
+ no passive-interface Ethernet0/2
+ no passive-interface Ethernet0/3
+ network 0.0.0.0 255.255.255.255 area 10
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+ip route 0.0.0.0 0.0.0.0 10.16.7.2
+ip route 0.0.0.0 0.0.0.0 10.16.5.2
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+ logging synchronous
+line aux 0
+line vty 0 4
+ login
+ transport input none
+!
+ntp master 3
+ntp update-calendar
+ntp peer 10.16.11.12
+!
+end
