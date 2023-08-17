@@ -83,12 +83,12 @@ Total number of prefixes 8
 ### 2. Настроить фильтрацию в офисе С.-Петербург так, чтобы не появилось транзитного трафика(Prefix-list).
 
 ```
-R18(config)#rip prefix-list ALLOW_SPECIFIC_NETWORKS seq 10 permit 10.19.3.0/24
-R18(config)#rip prefix-list ALLOW_SPECIFIC_NETWORKS seq 11 permit 10.19.5.0/24
-R18(config)#rip prefix-list ALLOW_SPECIFIC_NETWORKS seq 12 permit 10.30.16.0/24
-R18(config)#rip prefix-list ALLOW_SPECIFIC_NETWORKS seq 13 permit 10.30.17.0/24
-R18(config)#rip prefix-list ALLOW_SPECIFIC_NETWORKS seq 14 permit 10.30.31.0/24
-R18(config)#rip prefix-list ALLOW_SPECIFIC_NETWORKS seq 15 permit 10.30.38.0/24
+R18(config)#ip prefix-list ALLOW_SPECIFIC_NETWORKS seq 10 permit 10.19.3.0/24
+R18(config)#ip prefix-list ALLOW_SPECIFIC_NETWORKS seq 11 permit 10.19.5.0/24
+R18(config)#ip prefix-list ALLOW_SPECIFIC_NETWORKS seq 12 permit 10.30.16.0/24
+R18(config)#ip prefix-list ALLOW_SPECIFIC_NETWORKS seq 13 permit 10.30.17.0/24
+R18(config)#ip prefix-list ALLOW_SPECIFIC_NETWORKS seq 14 permit 10.30.31.0/24
+R18(config)#ip prefix-list ALLOW_SPECIFIC_NETWORKS seq 15 permit 10.30.38.0/24
 R18(config)#router bgp 2042
 R18(config-router)#neighbor 10.19.3.1 prefix-list ALLOW_SPECIFIC_NETWORKS out
 R18(config-router)#neighbor 10.19.5.1 prefix-list ALLOW_SPECIFIC_NETWORKS out
