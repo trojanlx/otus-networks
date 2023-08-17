@@ -250,12 +250,22 @@ icmp 10.19.6.31:2      10.20.31.31:2      10.19.6.1:2        10.19.6.1:2
 
 Настраиваем оба роутера на два DHCP сервера, для каждой vlan свой.
 Исключаем из пулов адреса физических интерфейсов роутеров и виртуальных VRRP.
-Для R13 настройки идентичны, он Backup в текущей конфигурации VRRP.
 10.16.3.126 и 10.16.2.126 - виртуальные ip VRRP.
 
 ```
-R12(config)#ip dhcp excluded-address 10.16.3.126
-R12(config)#ip dhcp excluded-address 10.16.2.126
+R12(config)#ip dhcp excluded-address 10.16.3.1 255.255.255.128
+R12(config)#ip dhcp excluded-address 10.16.2.1 255.255.255.128
+R12(config)#ip dhcp pool VLAN11
+R12(dhcp-config)#network 10.16.2.0 255.255.255.0
+R12(dhcp-config)#default-router 10.16.2.126
+R12(config)#ip dhcp pool VLAN17
+R12(dhcp-config)#network 10.16.3.0 255.255.255.0
+R12(dhcp-config)#default-router 10.16.3.126
+```
+
+```
+ip dhcp excluded-address 10.16.3.126 10.16.3.255
+ip dhcp excluded-address 10.16.2.126 10.16.2.255
 R12(config)#ip dhcp excluded-address 10.16.2.12
 R12(config)#ip dhcp excluded-address 10.16.3.12
 R12(config)#ip dhcp excluded-address 10.16.2.13

@@ -36,12 +36,8 @@ mmi snmp-timeout 180
 
 
 !
-ip dhcp excluded-address 10.16.3.126
-ip dhcp excluded-address 10.16.2.126
-ip dhcp excluded-address 10.16.2.12
-ip dhcp excluded-address 10.16.3.12
-ip dhcp excluded-address 10.16.2.13
-ip dhcp excluded-address 10.16.3.13
+ip dhcp excluded-address 10.16.3.1 255.255.255.128
+ip dhcp excluded-address 10.16.2.1 255.255.255.128
 !
 ip dhcp pool VLAN11
  network 10.16.2.0 255.255.255.0
