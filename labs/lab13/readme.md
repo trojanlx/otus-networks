@@ -178,3 +178,50 @@ R28#show ip nhrp
    NBMA address: 10.19.6.2
     (no-socket)
 ```
+
+Настраиваем маршрутизацию
+
+Конфигурация Hub
+
+```
+R15(config)#ip prefix-list DEFAULT_ROUTE permit 0.0.0.0/0
+R15(config)#route-map SPOKE_ROUTERS permit 10
+R15(config-route-map)#match ip address prefix-list DEFAULT_ROUTE
+R15(config)#router bgp 1001
+R15(config-router)#bgp listen range 10.120.0.0/24 peer-group SPOKES
+R15(config-router)#neighbor SPOKES peer-group
+R15(config-router)#neighbor SPOKES remote-as 1001
+R15(config-router)#neighbor SPOKES route-map SPOKE_ROUTERS out
+R15(config-router)#network 0.0.0.0 mask 0.0.0.0
+```
+
+Конфигурация Spoke
+
+```
+R28(config)#router bgp 1001
+R28(config-router)#neighbor 10.120.0.1 remote-as 1001
+R28(config-router)#network 10.20.30.0 mask 255.255.255.0
+R28(config-router)#network 10.20.31.0 mask 255.255.255.0
+```
+
+```
+R15#show ip route bgp
+Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, * - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       a - application route
+       + - replicated route, % - next hop override
+
+Gateway of last resort is 10.18.1.1 to network 0.0.0.0
+
+B*    0.0.0.0/0 [20/0] via 10.18.1.1, 17:49:55
+      10.0.0.0/8 is variably subnetted, 34 subnets, 4 masks
+B        10.17.1.0/24 [200/0] via 10.16.11.14, 17:49:55
+B        10.20.30.0/24 [200/0] via 10.120.0.3, 00:20:45
+B        10.20.31.0/24 [200/0] via 10.120.0.3, 00:20:45
+B        10.30.17.0/24 [20/0] via 10.18.1.1, 17:49:55
+```
