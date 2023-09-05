@@ -184,24 +184,39 @@ R28#show ip nhrp
 Конфигурация Hub
 
 ```
-R15(config)#ip prefix-list DEFAULT_ROUTE permit 0.0.0.0/0
+R15(config-if)#ip nhrp redirect
+ip prefix-list LAN_ROUTE seq 5 permit 10.16.3.0/24
+ip prefix-list LAN_ROUTE seq 6 permit 10.16.2.0/24
 R15(config)#route-map SPOKE_ROUTERS permit 10
-R15(config-route-map)#match ip address prefix-list DEFAULT_ROUTE
+R15(config-route-map)#match ip address prefix-list LAN_ROUTE
 R15(config)#router bgp 1001
 R15(config-router)#bgp listen range 10.120.0.0/24 peer-group SPOKES
 R15(config-router)#neighbor SPOKES peer-group
 R15(config-router)#neighbor SPOKES remote-as 1001
+R15(config-router)#neighbor SPOKES route-reflector-client
 R15(config-router)#neighbor SPOKES route-map SPOKE_ROUTERS out
 R15(config-router)#network 0.0.0.0 mask 0.0.0.0
+
+
 ```
 
 Конфигурация Spoke
 
 ```
+R28(config)#interface tunnel 100
+R28(config-if)#ip nhrp shortcut
 R28(config)#router bgp 1001
 R28(config-router)#neighbor 10.120.0.1 remote-as 1001
 R28(config-router)#network 10.20.30.0 mask 255.255.255.0
 R28(config-router)#network 10.20.31.0 mask 255.255.255.0
+```
+
+```
+R27(config)#interface tunnel 100
+R28(config-if)#ip nhrp shortcut
+R27(config)#router bgp 1001
+R27(config-if)#ip nhrp shortcut
+R27(config-router)#neighbor 10.120.0.1 remote-as 1001
 ```
 
 ```
