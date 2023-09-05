@@ -195,7 +195,6 @@ R15(config-router)#neighbor SPOKES peer-group
 R15(config-router)#neighbor SPOKES remote-as 1001
 R15(config-router)#neighbor SPOKES route-reflector-client
 R15(config-router)#neighbor SPOKES route-map SPOKE_ROUTERS out
-R15(config-router)#network 0.0.0.0 mask 0.0.0.0
 
 
 ```
