@@ -1,6 +1,7 @@
 ## Цель:
 
 Настроить GRE поверх IPSec между офисами Москва и С.-Петербург
+
 Настроить DMVPN поверх IPSec между офисами Москва и Чокурдах, Лабытнанги
 
 
@@ -37,6 +38,7 @@ R15(config-crypto-map)#set transform-set IPSEC_TS
 R15(config-crypto-map)#set pfs group5
 R15(config-crypto-map)#set ikev2-profile PROFILE1
 R15(config-crypto-map)#match address R15_to_R18
+R15(config)#crypto isakmp invalid-spi-recovery
 R15(config)#ip access-list extended R15_to_R18
 R15(config-ext-nacl)#permit gre host 10.18.1.2 host 10.19.3.2
 R15(config)#interface ethernet 0/2
@@ -63,6 +65,7 @@ R18(config-crypto-map)#set transform-set IPSEC_TS
 R18(config-crypto-map)#set pfs group5
 R18(config-crypto-map)#set ikev2-profile PROFILE1
 R18(config-crypto-map)#match address R18_to_R15
+R18(config)#crypto isakmp invalid-spi-recovery
 R18(config)#ip access-list extended R18_to_R15
 R18(config-ext-nacl)#permit gre host 10.19.3.2 host 10.18.1.2
 R18(config)#interface ethernet 0/2
@@ -132,7 +135,6 @@ R15(config-isakmp)#hash sha256
 R15(config-isakmp)#group 5
 R15(config)#crypto ipsec transform-set DMVPN_TS esp-aes esp-sha-hmac
 R15(config)#crypto isakmp key dmvpnkey address 0.0.0.0
-R15(config)#crypto isakmp invalid-spi-recovery
 R15(config)#crypto ipsec profile DMVPN_PROFILE
 R15(ipsec-profile)#set transform-set DMVPN_TS
 R15(config)#interface tunnel 100
@@ -151,7 +153,7 @@ R27(config)#crypto ipsec transform-set DMVPN_TS esp-aes esp-sha-hmac
 R27(cfg-crypto-trans)#crypto isakmp key dmvpnkey address 0.0.0.0
 R27(config)#crypto ipsec profile DMVPN_PROFILE
 R27(ipsec-profile)#set transform-set DMVPN_TS
-R15(config)#crypto isakmp invalid-spi-recovery
+R27(config)#crypto isakmp invalid-spi-recovery
 R27(config)#interface tunnel 100
 R27(config-if)#tunnel protection ipsec profile DMVPN_PROFILE
 ```
@@ -168,7 +170,7 @@ R28(config)#crypto ipsec transform-set DMVPN_TS esp-aes esp-sha-hmac
 R28(cfg-crypto-trans)#crypto isakmp key dmvpnkey address 0.0.0.0
 R28(config)#crypto ipsec profile DMVPN_PROFILE
 R28(ipsec-profile)#set transform-set DMVPN_TS
-R15(config)#crypto isakmp invalid-spi-recovery
+R28(config)#crypto isakmp invalid-spi-recovery
 R28(config)#interface tunnel 100
 R28(config-if)#tunnel protection ipsec profile DMVPN_PROFILE
 ```
