@@ -194,7 +194,6 @@ R15(config-router)#neighbor SPOKES peer-group
 R15(config-router)#neighbor SPOKES remote-as 1001
 R15(config-router)#neighbor SPOKES route-map SPOKE_ROUTERS out
 R15(config-router)#neighbor SPOKES default-originate
-R15(config-router)#network 0.0.0.0 mask 0.0.0.0
 ```
 
 Конфигурация Spoke
@@ -210,9 +209,8 @@ R28(config-router)#network 10.20.31.0 mask 255.255.255.0
 
 ```
 R27(config)#interface tunnel 100
-R28(config-if)#ip nhrp shortcut
-R27(config)#router bgp 1001
 R27(config-if)#ip nhrp shortcut
+R27(config)#router bgp 1001
 R27(config-router)#neighbor 10.120.0.1 remote-as 1001
 ```
 
@@ -236,4 +234,37 @@ B        10.17.1.0/24 [200/0] via 10.16.11.14, 17:49:55
 B        10.20.30.0/24 [200/0] via 10.120.0.3, 00:20:45
 B        10.20.31.0/24 [200/0] via 10.120.0.3, 00:20:45
 B        10.30.17.0/24 [20/0] via 10.18.1.1, 17:49:55
+```
+
+```
+R27#show ip route bgp
+Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, * - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       a - application route
+       + - replicated route, % - next hop override
+
+Gateway of last resort is 10.120.0.1 to network 0.0.0.0
+
+B*    0.0.0.0/0 [200/0] via 10.120.0.1, 00:00:37
+```
+
+```
+R28>show ip bgp
+BGP table version is 37, local router ID is 10.0.0.28
+Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
+              r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter,
+              x best-external, a additional-path, c RIB-compressed,
+Origin codes: i - IGP, e - EGP, ? - incomplete
+RPKI validation codes: V valid, I invalid, N Not found
+
+     Network          Next Hop            Metric LocPrf Weight Path
+ r>i 0.0.0.0          10.120.0.1               0    100      0 i
+ *>  10.20.30.0/24    0.0.0.0                  0         32768 i
+ *>  10.20.31.0/24    0.0.0.0                  0         32768 i
+R28>
 ```
